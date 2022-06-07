@@ -1,0 +1,65 @@
+#############################################################################
+
+[root@ip-172-31-18-141 k8s-specifications]# kubectl apply -f .
+deployment.apps/db created
+service/db created
+deployment.apps/redis created
+service/redis created
+deployment.apps/result created
+service/result created
+deployment.apps/vote created
+service/vote created
+deployment.apps/worker created
+
+#############################################################################
+
+[root@ip-172-31-18-141 example-voting-app]# kubectl get po
+NAME                      READY   STATUS    RESTARTS   AGE
+db-b54cd94f4-cdnwv        2/2     Running   0          5m51s
+redis-868d64d78-g5dnn     2/2     Running   0          5m51s
+result-5d57b59f4b-j44l7   2/2     Running   0          5m51s
+vote-94849dc97-tf9jw      2/2     Running   0          5m50s
+worker-dd46d7584-tv75c    2/2     Running   0          5m50s
+
+#############################################################################
+
+[root@ip-172-31-18-141 vote]# kubectl get svc
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+db           ClusterIP   10.96.210.4     <none>        5432/TCP         18m
+kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP          19m
+redis        ClusterIP   10.104.20.177   <none>        6379/TCP         18m
+result       NodePort    10.98.255.107   <none>        5001:31001/TCP   18m
+vote         NodePort    10.96.46.23     <none>        5000:31000/TCP   18m
+
+#############################################################################
+
+take your publicIP (your instance IP) : NodePort
+13.213.72.227:310001 -> results
+13.213.72.227:310000 -> voting
+
+STATUS [ WORKING ]
+
+#############################################################################
+
+->Now try to delete the Pods one by one (first voting Pod, then worker pod, then db pod) 
+and see what happens to the voting and result app after deleting.
+
+[root@ip-172-31-18-141 k8s-specifications]# kubectl get rs
+NAME                DESIRED   CURRENT   READY   AGE
+db-b54cd94f4        1         1         1       52m
+redis-868d64d78     1         1         1       52m
+result-5d57b59f4b   1         1         1       52m
+vote-94849dc97      1         1         1       52m
+worker-dd46d7584    1         1         1       52m
+
+#############################################################################
+
+here in rs the DESIRED and CURRENT value is 1.
+So if we delete any pod then it will create the another pod.
+If we delete the dp pod then vote count will not appear in the result window.
+
+for making the result pod working, delete the both db and result pod then all the 
+results gets deleted. And after refreshing we will get the vote count.
+
+#############################################################################
+
